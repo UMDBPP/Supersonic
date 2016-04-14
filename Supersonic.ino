@@ -6,7 +6,12 @@ Balloonduino module;
 TinyGPSPlus gps;
 SoftwareSerial ss(4, 5);
 
-double releaseWindow[] = { 0, 90, 0, 180, 36575, 1000 };    // [ min latitude, max latitude, min longitude, max longitude, drop altitude, parachute altitude ] in meters
+double minLatitude = 0;
+double maxLatitude = 90;
+double minLongitude = 0;
+double maxLongitude = 180;
+double dropAltitude = 36575;
+double parachuteAltitude = 1000;
 bool released = false;
 
 void setup()
@@ -26,17 +31,17 @@ void loop()
     if (!released)
     {
         // read GPS data
-        if (gps.location.lat() > releaseWindow[0])
+        if (gps.location.lat() > minLatitude)
         {
-            if (gps.location.lat() < releaseWindow[1])
+            if (gps.location.lat() < maxLatitude)
             {
-                if (gps.location.lng() > releaseWindow[2])
+                if (gps.location.lng() > minLongitude)
                 {
-                    if (gps.location.lng() < releaseWindow[3])
+                    if (gps.location.lng() < maxLongitude)
                     {
-                        if (gps.altitude > releaseWindow[4])
+                        if (gps.altitude > dropAltitude)
                         {
-                            if (module.getAltitude() > releaseWindow[4])
+                            if (module.getAltitude() > dropAltitude)
                             {
                                 if (requestRelease())
                                 {
@@ -52,9 +57,9 @@ void loop()
     else
     {
         // we are in freefall
-        if (gps.altitude < releaseWindow[5])
+        if (gps.altitude < parachuteAltitude)
         {
-            if (module.getAltitude() < releaseWindow[5])
+            if (module.getAltitude() < parachuteAltitude)
             {
                 releaseParachute();
             }
